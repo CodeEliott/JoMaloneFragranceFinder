@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jo Malone London | Scent Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Jo Malone Cream & Black -->
+    <!-- Application Structure Plan: A linear, multi-screen SPA flow. The user progresses from a welcome screen, through a two-step quiz, to a loading screen, and finally to a detailed results page. This structure remains minimalist while offering deeper personalization. The results page is designed to educate the user on the brand's core philosophy of "Fragrance Combining™" by presenting a base, a pair, and a bonus layer. -->
+    <!-- Visualization & Content Choices: The core interaction is a multi-step quiz. Goal: Gather user's primary scent preference and desired mood. Method: Large, clickable HTML cards. Interaction: User selects a card, their choice is saved, and the next question/recommendation is triggered. Justification: This is more elegant and on-brand than standard forms. The result is a curated 3-scent story, dynamically generated from a much larger database to show how products can be layered, directly supporting the brand's key marketing message. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #FDFCF9; /* Jo Malone Cream */
+            color: #1E1E1E;
+        }
+        .font-serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .progress-bar-inner {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
+
+        <!-- Screen 1: Welcome -->
+        <section id="welcome-screen" class="text-center max-w-2xl mx-auto fade-in">
+            <h1 class="font-serif text-5xl md:text-6xl font-semibold tracking-wider">JO MALONE</h1>
+            <p class="text-sm tracking-[0.3em] font-light">L O N D O N</p>
+            <h2 class="font-serif text-2xl md:text-3xl mt-8">The Art of Fragrance Combining™</h2>
+            <p class="mt-6 text-lg text-gray-700">Discover a scent that’s uniquely yours. Answer a few questions to allow us to curate a personal fragrance story for you.</p>
+            <button onclick="startQuiz()" class="mt-10 px-12 py-4 bg-black text-white font-normal text-sm tracking-widest hover:bg-gray-800 transition-colors duration-300">Begin</button>
+        </section>
+
+        <!-- Screen 2: Quiz -->
+        <section id="quiz-screen" class="hidden w-full max-w-5xl mx-auto fade-in">
+            <div id="progress-bar" class="w-full bg-gray-200 rounded-full h-1.5 mb-8">
+                <div id="progress-bar-inner" class="bg-black h-1.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <div id="quiz-content">
+                <!-- Quiz questions will be injected here -->
+            </div>
+        </section>
+
+        <!-- Screen 3: Loading -->
+        <section id="loading-screen" class="hidden text-center max-w-lg mx-auto fade-in">
+            <div class="w-12 h-12 border-2 border-dashed border-black rounded-full animate-spin mx-auto"></div>
+            <h2 class="font-serif text-3xl mt-8">Curating Your Scents</h2>
+            <p class="mt-4 text-lg text-gray-700">Finding the perfect combination...</p>
+        </section>
+
+        <!-- Screen 4: Results -->
+        <section id="results-screen" class="hidden w-full max-w-6xl mx-auto fade-in">
+            <div class="text-center">
+                <h2 class="font-serif text-4xl md:text-5xl font-semibold">Your Personalised Scent Story</h2>
+                <p class="text-lg mt-4 text-gray-700">Based on your preferences, we've selected a bespoke combination, just for you.</p>
+            </div>
+            <div id="results-container" class="mt-12">
+                <!-- Results will be injected here -->
+            </div>
+            <div class="text-center mt-12">
+                <button onclick="restartQuiz()" class="px-12 py-4 bg-black text-white font-normal text-sm tracking-widest hover:bg-gray-800 transition-colors duration-300">Start Over</button>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- DATABASE ---
+        const joMaloneFragrances = [
+            // Fresh & Citrus
+            { name: "Lime Basil & Mandarin Cologne", family: "Citrus", notes: "Mandarin, Basil, Amberwood", story: "Our signature fragrance. Peppery basil and aromatic white thyme bring an unexpected twist to the scent of limes on a Caribbean breeze.", productUrl: "#", pairingType: 'fresher', tags: ['daytime', 'uplifting', 'signature'] },
+            { name: "Grapefruit Cologne", family: "Citrus", notes: "Grapefruit, Rosemary, Moss", story: "The brightness of grapefruit and tangerine, softened by the earthy notes of rosemary and moss.", productUrl: "#", pairingType: 'fresher', tags: ['daytime', 'uplifting', 'casual'] },
+            { name: "Basil & Neroli Cologne", family: "Citrus", notes: "Basil, Neroli, White Musk", story: "A London lark. Quintessentially British, always playful. Fresh, fun, and full of adventure.", productUrl: "#", pairingType: 'fresher', tags: ['daytime', 'casual'] },
+            { name: "Earl Grey & Cucumber Cologne", family: "Citrus", notes: "Bergamot, Cucumber, Beeswax", story: "A British tradition… afternoon tea. A fragrance with a burst of bergamot, distinctly Earl Grey, and the cool succulence of crunchy cucumber.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'casual', 'relaxing'] },
+            
+            // Luscious & Fruity
+            { name: "English Pear & Freesia Cologne", family: "Fruity", notes: "King William Pear, Freesia, Patchouli", story: "The essence of autumn. The sensuous freshness of just-ripe pears is wrapped in a bouquet of white freesias.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'elegant', 'signature'] },
+            { name: "Nectarine Blossom & Honey Cologne", family: "Fruity", notes: "Cassis, Acacia Honey, Peach", story: "London's Covent Garden early morning market. Succulent nectarine, peach and cassis and delicate spring flowers melt into the note of acacia honey.", productUrl: "#", pairingType: 'fresher', tags: ['daytime', 'uplifting', 'casual'] },
+            { name: "Blackberry & Bay Cologne", family: "Fruity", notes: "Blackberry, Bay Leaves, Cedarwood", story: "Childhood memories of blackberry picking. A burst of deep, tart blackberry juice, blending with the freshness of just-gathered bay.", productUrl: "#", pairingType: 'fresher', tags: ['daytime', 'casual'] },
+            { name: "Wild Bluebell Cologne", family: "Fruity", notes: "Bluebell, Persimmon, White Musk", story: "Vibrant sapphire blooms in a shaded woodland. The delicate sweetness of dewy bluebells suffused with lily of the valley and a luscious twist of persimmon.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'elegant', 'relaxing'] },
+            { name: "Pomegranate Noir Cologne", family: "Fruity", notes: "Pomegranate, Casablanca Lily, Guaiacwood", story: "The sensuality of a daring red dress. Ruby-rich juices of pomegranate, spiked with pink pepper and laced with Casablanca lily.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual', 'signature'] },
+
+            // Light & Floral
+            { name: "Peony & Blush Suede Cologne", family: "Floral", notes: "Red Apple, Peony, Suede", story: "The essence of charm. Peonies in voluptuous bloom, exquisitely fragile. Flirtatious with the juicy bite of red apple.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'elegant', 'signature'] },
+            { name: "Orange Blossom Cologne", family: "Floral", notes: "Clementine Flower, Orange Blossom, Orriswood", story: "A shimmering garden oasis. Clementine flower sparkles over a heart of orange blossom and water lily.", productUrl: "#", pairingType: 'fresher', tags: ['daytime', 'uplifting', 'casual'] },
+            { name: "Lavender & Moonflower Cologne", family: "Floral", notes: "English Lavender, White Musk, Moonflowers", story: "Aromatic English lavender nestles in a cocooning base of white musk and night-blooming moonflowers.", productUrl: "#", pairingType: 'base', tags: ['evening', 'relaxing'] },
+            { name: "Red Roses Cologne", family: "Floral", notes: "Lemon, Red Roses Accord, Honeycomb", story: "A voluptuous blend of seven of the world's most exquisite roses. With crushed violet leaves and a hint of lemon.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'elegant', 'sensual'] },
+            { name: "Scarlet Poppy Cologne Intense", family: "Floral", notes: "Ambrette, Scarlet Poppy, Tonka Bean", story: "From the wild steppes of Asia, home of the great scarlet poppy. A voluptuous floral, inspired by its extravagant blooms.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual', 'signature'] },
+
+            // Rich & Floral (Treated as 'Floral' with 'warmer' pairing type)
+            { name: "Velvet Rose & Oud Cologne Intense", family: "Floral", notes: "Clove, Damask Rose, Oud", story: "Darkest Damask rose. Rich and textural, wrapped with smoky oud wood. Spiked with clove, decadent with praline.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual', 'signature'] },
+            { name: "Jasmine Sambac & Marigold Cologne Intense", family: "Floral", notes: "Marigold, Jasmine Sambac, Benzoin", story: "Serene fields of jasmine sambac. The most precious of jasmines, combined with the vibrant marigold, gathered at dawn.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'elegant'] },
+            { name: "Tuberose Angelica Cologne Intense", family: "Floral", notes: "Angelica, Tuberose, Amberwood", story: "The queen of white florals. Sensual. Touched with the green spiciness of angelica and summed up by the warmth of amberwood.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual'] },
+
+            // Warm & Woody
+            { name: "Wood Sage & Sea Salt Cologne", family: "Woody", notes: "Ambrette Seeds, Sea Salt, Sage", story: "Escape the everyday along the windswept shore. Waves breaking white, the air fresh with sea salt and spray.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'casual', 'relaxing', 'signature'] },
+            { name: "Cypress & Grapevine Cologne Intense", family: "Woody", notes: "Cypress, Grapevine, Moss", story: "The verdant hanging gardens of a lost ancient world. A fresh, aromatic scent of cypress trees, powered with the warmth of grapevine.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual'] },
+            { name: "Myrrh & Tonka Cologne Intense", family: "Woody", notes: "Lavender, Omumbiri Myrrh, Tonka Bean", story: "Rich, hand-harvested sap of the Namibian myrrh tree, mingling with the warm almond and lush vanilla notes of the tonka bean.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual', 'relaxing', 'signature'] },
+            { name: "Vetiver & Golden Vanilla Cologne Intense", family: "Woody", notes: "Cardamom, Vetiver Bourbon, Vanilla Bourbon", story: "A delectable spice opens a gourmand accord of vanilla bourbon, grounded by earthy vetiver.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual', 'relaxing'] },
+            { name: "Oud & Bergamot Cologne Intense", family: "Woody", notes: "Bergamot, Cedarwood, Oud", story: "Precious oud, reframed. The mysterious, smoky character of this revered wood, is central to Middle Eastern fragrance traditions.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual', 'signature'] },
+
+            // Spicy & Oriental (Treated as 'Spicy')
+            { name: "Dark Amber & Ginger Lily Cologne Intense", family: "Spicy", notes: "Black Cardamom, Black Orchid, Kyara Incense", story: "Enriched with amber and black orchid. Illuminated by the clean sensuality of black cardamom, ginger and water lily.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'sensual', 'relaxing'] },
+            { name: "Hinoki & Cedarwood Cologne Intense", family: "Spicy", notes: "Hinoki, Cedarwood, Amber", story: "A scent that captures the tranquility of a Japanese forest temple, with notes of hinoki wood, cedar, and warm amber.", productUrl: "#", pairingType: 'warmer', tags: ['evening', 'relaxing'] },
+            { name: "Red Hibiscus Cologne Intense", family: "Spicy", notes: "Mandarin, Red Hibiscus, Vanilla", story: "A vivid solar floral. The red hibiscus is known for its enchanting petals and can be found in the heart of a tropical forest.", productUrl: "#", pairingType: 'base', tags: ['daytime', 'uplifting'] }
+        ];
+
+        const quizData = [
+            {
+                question: "Which scent family are you most drawn to?",
+                key: "family",
+                answers: [
+                    { text: "Citrus", value: "Citrus", description: "Fresh, zesty and uplifting." },
+                    { text: "Fruity", value: "Fruity", description: "Juicy, luscious and bright." },
+                    { text: "Floral", value: "Floral", description: "Delicate, soft and classic." },
+                    { text: "Spicy", value: "Spicy", description: "Warm, aromatic and intriguing." },
+                    { text: "Woody", value: "Woody", description: "Earthy, warm and sophisticated." }
+                ]
+            },
+            {
+                question: "What is the perfect occasion for this scent?",
+                key: "mood",
+                answers: [
+                    { text: "A Relaxing Day", value: "relaxing", description: "For moments of calm and comfort." },
+                    { text: "An Elegant Evening", value: "evening", description: "For sophisticated and special events." },
+                    { text: "A Casual Outing", value: "casual", description: "For effortless, everyday style." },
+                    { text: "An Uplifting Moment", value: "uplifting", description: "For a bright and energising boost." }
+                ]
+            }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let currentQuestionIndex = 0;
+        const userAnswers = {};
+
+        // --- DOM ELEMENTS & SCREENS ---
+        const screens = { welcome: document.getElementById('welcome-screen'), quiz: document.getElementById('quiz-screen'), loading: document.getElementById('loading-screen'), results: document.getElementById('results-screen') };
+        const quizContent = document.getElementById('quiz-content');
+        const resultsContainer = document.getElementById('results-container');
+        const progressBarInner = document.getElementById('progress-bar-inner');
+
+        // --- NAVIGATION & RENDERING ---
+        function showScreen(screenName) {
+            Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+            screens[screenName].classList.remove('hidden');
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            Object.keys(userAnswers).forEach(key => delete userAnswers[key]);
+            renderQuestion();
+            showScreen('quiz');
+        }
+
+        function restartQuiz() {
+            showScreen('welcome');
+        }
+
+        function renderQuestion() {
+            const questionData = quizData[currentQuestionIndex];
+            const progressPercentage = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBarInner.style.width = `${progressPercentage}%`;
+
+            let answersHtml = questionData.answers.map(answer => `
+                <div onclick="selectAnswer('${questionData.key}', '${answer.value}')" 
+                     class="border border-gray-300 p-8 text-center cursor-pointer hover:border-black hover:bg-white transition-all duration-300">
+                    <h3 class="font-serif text-3xl font-semibold">${answer.text}</h3>
+                    <p class="mt-2 text-gray-600">${answer.description}</p>
+                </div>
+            `).join('');
+
+            quizContent.innerHTML = `
+                <div class="text-center fade-in">
+                    <h2 class="font-serif text-3xl md:text-4xl mb-10">${questionData.question}</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${answersHtml}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function selectAnswer(key, value) {
+            userAnswers[key] = value;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                renderQuestion();
+            } else {
+                getResults();
+            }
+        }
+        
+        function renderResults(recommendations) {
+            const { base, pair1, pair2 } = recommendations;
+
+            const renderFragrance = (fragrance, role, combinationText = '') => {
+                let roleHtml = '';
+                if (role === 'base') {
+                    roleHtml = `<p class="text-sm tracking-widest font-light uppercase">Your Base Scent</p>`;
+                } else {
+                    roleHtml = `<p class="text-sm tracking-widest font-light uppercase">${combinationText}</p>`;
+                }
+
+                return `
+                    <div class="text-center">
+                        ${roleHtml}
+                        <h3 class="font-serif text-3xl font-semibold mt-2">${fragrance.name}</h3>
+                        <p class="mt-4 text-gray-700 max-w-sm mx-auto italic">"${fragrance.story}"</p>
+                        <p class="mt-4 text-sm font-bold tracking-wider text-gray-500">NOTES: ${fragrance.notes}</p>
+                        <a href="${fragrance.productUrl}" target="_blank" rel="noopener noreferrer" class="mt-6 inline-block w-full max-w-xs px-8 py-3 bg-black text-white font-normal text-sm tracking-widest hover:bg-gray-800 transition-colors duration-300">Discover</a>
+                    </div>
+                `;
+            };
+
+            resultsContainer.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 items-start gap-12">
+                    ${renderFragrance(base, 'base')}
+                    <div class="text-center">
+                        <div class="flex items-center justify-center">
+                           <div class="w-24 h-px bg-gray-300"></div>
+                           <p class="mx-4 text-5xl font-serif">+</p>
+                           <div class="w-24 h-px bg-gray-300"></div>
+                        </div>
+                        <div class="mt-8">
+                            ${renderFragrance(pair1, 'pair', `Combine with...<br><strong>For a Fresher Scent</strong>`)}
+                        </div>
+                         <div class="mt-12">
+                            <p class="text-gray-500 font-serif text-2xl">or</p>
+                        </div>
+                        <div class="mt-8">
+                             ${renderFragrance(pair2, 'pair', `Combine with...<br><strong>For a Warmer Scent</strong>`)}
+                        </div>
+                    </div>
+                    <div class="text-center bg-white p-8 lg:p-12 border border-gray-200">
+                         <p class="text-sm tracking-widest font-light uppercase">Your Bespoke Combination</p>
+                         <h3 class="font-serif text-3xl font-semibold mt-2">${base.name}</h3>
+                         <p class="font-serif text-3xl font-semibold">+</p>
+                         <h3 class="font-serif text-3xl font-semibold">${pair1.name}</h3>
+                         <p class="mt-6 text-gray-700 max-w-sm mx-auto">Create a vibrant, uplifting fragrance story. Or, for a different mood, combine your base with ${pair2.name} for a warm, sensual depth.</p>
+                         <button onclick="restartQuiz()" class="mt-8 w-full max-w-xs px-8 py-3 border border-black text-black font-normal text-sm tracking-widest hover:bg-gray-100 transition-colors duration-300">Find Another</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- API LOGIC (SIMULATED) ---
+        async function getResults() {
+            showScreen('loading');
+            await new Promise(resolve => setTimeout(resolve, 2500));
+            const recommendations = getMockRecommendations(userAnswers);
+            renderResults(recommendations);
+            showScreen('results');
+        }
+
+        function getMockRecommendations(answers) {
+            const { family, mood } = answers;
+
+            // 1. Find the best possible base scent that matches both family and mood
+            let baseScent = joMaloneFragrances.find(f => f.family === family && f.tags.includes(mood) && f.pairingType === 'base');
+            if (!baseScent) { // Fallback 1: Find a base scent in the family, ignore mood
+                baseScent = joMaloneFragrances.find(f => f.family === family && f.pairingType === 'base');
+            }
+            if (!baseScent) { // Fallback 2: Find any scent in the family
+                baseScent = joMaloneFragrances.find(f => f.family === family);
+            }
+             if (!baseScent) { // Final Fallback: Grab the first scent in the list
+                baseScent = joMaloneFragrances[0];
+            }
+
+            // 2. Find a 'fresher' scent to pair with it (must not be the same scent)
+            let fresherPair = joMaloneFragrances.find(f => f.pairingType === 'fresher' && f.name !== baseScent.name);
+            
+            // 3. Find a 'warmer' scent to pair with it (must not be the same as base or fresher)
+            let warmerPair = joMaloneFragrances.find(f => f.pairingType === 'warmer' && f.name !== baseScent.name && f.name !== fresherPair.name);
+
+            // Fallbacks to ensure we always have 3 unique scents
+            if (!fresherPair) fresherPair = joMaloneFragrances.find(f => f.name !== baseScent.name);
+            if (!warmerPair) warmerPair = joMaloneFragrances.find(f => f.name !== baseScent.name && f.name !== fresherPair.name);
+
+            return {
+                base: baseScent,
+                pair1: fresherPair,
+                pair2: warmerPair
+            };
+        }
+
+        // Initial state
+        showScreen('welcome');
+    </script>
+</body>
+</html>
