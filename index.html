@@ -44,6 +44,7 @@
             <h2 class="font-serif text-2xl md:text-3xl mt-8">The Art of Fragrance Combining™</h2>
             <p class="mt-6 text-lg text-gray-700">Discover a scent that’s uniquely yours. Answer a few questions to allow us to curate a personal fragrance story for you.</p>
             <button onclick="startQuiz()" class="mt-10 px-12 py-4 bg-black text-white font-normal text-sm tracking-widest hover:bg-gray-800 transition-colors duration-300">Begin</button>
+            <p id="climate-status" class="text-sm text-gray-500 mt-4 h-5"></p>
         </section>
 
         <!-- Screen 2: Quiz -->
@@ -67,7 +68,7 @@
         <section id="results-screen" class="hidden w-full max-w-6xl mx-auto fade-in">
             <div class="text-center">
                 <h2 class="font-serif text-4xl md:text-5xl font-semibold">Your Personalised Scent Story</h2>
-                <p class="text-lg mt-4 text-gray-700">Based on your preferences, we've selected a bespoke combination, just for you.</p>
+                <p id="results-intro" class="text-lg mt-4 text-gray-700">Based on your preferences, we've selected a bespoke combination, just for you.</p>
             </div>
             <div id="results-container" class="mt-12">
                 <!-- Results will be injected here -->
@@ -82,83 +83,52 @@
     <script>
         // --- DATABASE ---
         const joMaloneFragrances = [
-            { name: "Lime Basil & Mandarin Cologne", family: "Citrus", notes: "Mandarin, Basil, Amberwood", story: "Our signature fragrance. Peppery basil and aromatic white thyme bring an unexpected twist to the scent of limes on a Caribbean breeze.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'citrus', 'light', 'morning'] },
-            { name: "Grapefruit Cologne", family: "Citrus", notes: "Grapefruit, Rosemary, Moss", story: "The brightness of grapefruit and tangerine, softened by the earthy notes of rosemary and moss.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'citrus', 'light', 'morning'] },
-            { name: "Basil & Neroli Cologne", family: "Citrus", notes: "Basil, Neroli, White Musk", story: "A London lark. Quintessentially British, always playful. Fresh, fun, and full of adventure.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'floral', 'light', 'morning'] },
-            { name: "Earl Grey & Cucumber Cologne", family: "Citrus", notes: "Bergamot, Cucumber, Beeswax", story: "A British tradition… afternoon tea. A fragrance with a burst of bergamot, distinctly Earl Grey, and the cool succulence of crunchy cucumber.", productUrl: "#", pairingType: 'base', tags: ['serene', 'citrus', 'light', 'morning'] },
-            { name: "English Pear & Freesia Cologne", family: "Fruity", notes: "King William Pear, Freesia, Patchouli", story: "The essence of autumn. The sensuous freshness of just-ripe pears is wrapped in a bouquet of white freesias.", productUrl: "#", pairingType: 'base', tags: ['uplifting', 'fruity', 'versatile', 'goldenHour'] },
-            { name: "Nectarine Blossom & Honey Cologne", family: "Fruity", notes: "Cassis, Acacia Honey, Peach", story: "London's Covent Garden early morning market. Succulent nectarine, peach and cassis and delicate spring flowers melt into the note of acacia honey.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'fruity', 'light', 'morning'] },
-            { name: "Blackberry & Bay Cologne", family: "Fruity", notes: "Blackberry, Bay Leaves, Cedarwood", story: "Childhood memories of blackberry picking. A burst of deep, tart blackberry juice, blending with the freshness of just-gathered bay.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'fruity', 'light', 'morning'] },
-            { name: "Wild Bluebell Cologne", family: "Fruity", notes: "Bluebell, Persimmon, White Musk", story: "Vibrant sapphire blooms in a shaded woodland. The delicate sweetness of dewy bluebells suffused with lily of the valley and a luscious twist of persimmon.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'light', 'goldenHour'] },
-            { name: "Pomegranate Noir Cologne", family: "Fruity", notes: "Pomegranate, Casablanca Lily, Guaiacwood", story: "The sensuality of a daring red dress. Ruby-rich juices of pomegranate, spiked with pink pepper and laced with Casablanca lily.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening'] },
-            { name: "Peony & Blush Suede Cologne", family: "Floral", notes: "Red Apple, Peony, Suede", story: "The essence of charm. Peonies in voluptuous bloom, exquisitely fragile. Flirtatious with the juicy bite of red apple.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'versatile', 'goldenHour'] },
-            { name: "Orange Blossom Cologne", family: "Floral", notes: "Clementine Flower, Orange Blossom, Orriswood", story: "A shimmering garden oasis. Clementine flower sparkles over a heart of orange blossom and water lily.", productUrl: "#", pairingType: 'fresher', tags: ['romantic', 'floral', 'light', 'morning'] },
-            { name: "Lavender & Moonflower Cologne", family: "Floral", notes: "English Lavender, White Musk, Moonflowers", story: "Aromatic English lavender nestles in a cocooning base of white musk and night-blooming moonflowers.", productUrl: "#", pairingType: 'base', tags: ['serene', 'floral', 'versatile', 'evening'] },
-            { name: "Red Roses Cologne", family: "Floral", notes: "Lemon, Red Roses Accord, Honeycomb", story: "A voluptuous blend of seven of the world's most exquisite roses. With crushed violet leaves and a hint of lemon.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'versatile', 'goldenHour'] },
-            { name: "Scarlet Poppy Cologne Intense", family: "Floral", notes: "Ambrette, Scarlet Poppy, Tonka Bean", story: "From the wild steppes of Asia, home of the great scarlet poppy. A voluptuous floral, inspired by its extravagant blooms.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'floral', 'intense', 'evening'] },
-            { name: "Velvet Rose & Oud Cologne Intense", family: "Floral", notes: "Clove, Damask Rose, Oud", story: "Darkest Damask rose. Rich and textural, wrapped with smoky oud wood. Spiked with clove, decadent with praline.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening'] },
-            { name: "Jasmine Sambac & Marigold Cologne Intense", family: "Floral", notes: "Marigold, Jasmine Sambac, Benzoin", story: "Serene fields of jasmine sambac. The most precious of jasmines, combined with the vibrant marigold, gathered at dawn.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'intense', 'goldenHour'] },
-            { name: "Tuberose Angelica Cologne Intense", family: "Floral", notes: "Angelica, Tuberose, Amberwood", story: "The queen of white florals. Sensual. Touched with the green spiciness of angelica and summed up by the warmth of amberwood.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'floral', 'intense', 'evening'] },
-            { name: "Wood Sage & Sea Salt Cologne", family: "Woody", notes: "Ambrette Seeds, Sea Salt, Sage", story: "Escape the everyday along the windswept shore. Waves breaking white, the air fresh with sea salt and spray.", productUrl: "#", pairingType: 'base', tags: ['serene', 'woody', 'versatile', 'goldenHour'] },
-            { name: "Cypress & Grapevine Cologne Intense", family: "Woody", notes: "Cypress, Grapevine, Moss", story: "The verdant hanging gardens of a lost ancient world. A fresh, aromatic scent of cypress trees, powered with the warmth of grapevine.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'woody', 'intense', 'evening'] },
-            { name: "Myrrh & Tonka Cologne Intense", family: "Woody", notes: "Lavender, Omumbiri Myrrh, Tonka Bean", story: "Rich, hand-harvested sap of the Namibian myrrh tree, mingling with the warm almond and lush vanilla notes of the tonka bean.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening'] },
-            { name: "Vetiver & Golden Vanilla Cologne Intense", family: "Woody", notes: "Cardamom, Vetiver Bourbon, Vanilla Bourbon", story: "A delectable spice opens a gourmand accord of vanilla bourbon, grounded by earthy vetiver.", productUrl: "#", pairingType: 'warmer', tags: ['serene', 'spicy', 'intense', 'evening'] },
-            { name: "Oud & Bergamot Cologne Intense", family: "Woody", notes: "Bergamot, Cedarwood, Oud", story: "Precious oud, reframed. The mysterious, smoky character of this revered wood, is central to Middle Eastern fragrance traditions.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'woody', 'intense', 'evening'] },
-            { name: "Dark Amber & Ginger Lily Cologne Intense", family: "Spicy", notes: "Black Cardamom, Black Orchid, Kyara Incense", story: "Enriched with amber and black orchid. Illuminated by the clean sensuality of black cardamom, ginger and water lily.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening'] },
-            { name: "Hinoki & Cedarwood Cologne Intense", family: "Spicy", notes: "Hinoki, Cedarwood, Amber", story: "A scent that captures the tranquility of a Japanese forest temple, with notes of hinoki wood, cedar, and warm amber.", productUrl: "#", pairingType: 'warmer', tags: ['serene', 'woody', 'intense', 'evening'] },
-            { name: "Red Hibiscus Cologne Intense", family: "Spicy", notes: "Mandarin, Red Hibiscus, Vanilla", story: "A vivid solar floral. The red hibiscus is known for its enchanting petals and can be found in the heart of a tropical forest.", productUrl: "#", pairingType: 'base', tags: ['uplifting', 'floral', 'intense', 'goldenHour'] }
+            { name: "Lime Basil & Mandarin Cologne", family: "Citrus", notes: "Mandarin, Basil, Amberwood", story: "Our signature fragrance. Peppery basil and aromatic white thyme bring an unexpected twist to the scent of limes on a Caribbean breeze.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'citrus', 'light', 'morning', 'warmWeather'] },
+            { name: "Grapefruit Cologne", family: "Citrus", notes: "Grapefruit, Rosemary, Moss", story: "The brightness of grapefruit and tangerine, softened by the earthy notes of rosemary and moss.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'citrus', 'light', 'morning', 'warmWeather'] },
+            { name: "Basil & Neroli Cologne", family: "Citrus", notes: "Basil, Neroli, White Musk", story: "A London lark. Quintessentially British, always playful. Fresh, fun, and full of adventure.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'floral', 'light', 'morning', 'warmWeather'] },
+            { name: "Earl Grey & Cucumber Cologne", family: "Citrus", notes: "Bergamot, Cucumber, Beeswax", story: "A British tradition… afternoon tea. A fragrance with a burst of bergamot, distinctly Earl Grey, and the cool succulence of crunchy cucumber.", productUrl: "#", pairingType: 'base', tags: ['serene', 'citrus', 'light', 'morning', 'warmWeather'] },
+            { name: "English Pear & Freesia Cologne", family: "Fruity", notes: "King William Pear, Freesia, Patchouli", story: "The essence of autumn. The sensuous freshness of just-ripe pears is wrapped in a bouquet of white freesias.", productUrl: "#", pairingType: 'base', tags: ['uplifting', 'fruity', 'versatile', 'goldenHour', 'coolWeather'] },
+            { name: "Nectarine Blossom & Honey Cologne", family: "Fruity", notes: "Cassis, Acacia Honey, Peach", story: "London's Covent Garden early morning market. Succulent nectarine, peach and cassis and delicate spring flowers melt into the note of acacia honey.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'fruity', 'light', 'morning', 'warmWeather'] },
+            { name: "Blackberry & Bay Cologne", family: "Fruity", notes: "Blackberry, Bay Leaves, Cedarwood", story: "Childhood memories of blackberry picking. A burst of deep, tart blackberry juice, blending with the freshness of just-gathered bay.", productUrl: "#", pairingType: 'fresher', tags: ['uplifting', 'fruity', 'light', 'morning', 'coolWeather'] },
+            { name: "Wild Bluebell Cologne", family: "Fruity", notes: "Bluebell, Persimmon, White Musk", story: "Vibrant sapphire blooms in a shaded woodland. The delicate sweetness of dewy bluebells suffused with lily of the valley and a luscious twist of persimmon.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'light', 'goldenHour', 'warmWeather'] },
+            { name: "Pomegranate Noir Cologne", family: "Fruity", notes: "Pomegranate, Casablanca Lily, Guaiacwood", story: "The sensuality of a daring red dress. Ruby-rich juices of pomegranate, spiked with pink pepper and laced with Casablanca lily.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening', 'coolWeather'] },
+            { name: "Peony & Blush Suede Cologne", family: "Floral", notes: "Red Apple, Peony, Suede", story: "The essence of charm. Peonies in voluptuous bloom, exquisitely fragile. Flirtatious with the juicy bite of red apple.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'versatile', 'goldenHour', 'warmWeather'] },
+            { name: "Orange Blossom Cologne", family: "Floral", notes: "Clementine Flower, Orange Blossom, Orriswood", story: "A shimmering garden oasis. Clementine flower sparkles over a heart of orange blossom and water lily.", productUrl: "#", pairingType: 'fresher', tags: ['romantic', 'floral', 'light', 'morning', 'warmWeather'] },
+            { name: "Lavender & Moonflower Cologne", family: "Floral", notes: "English Lavender, White Musk, Moonflowers", story: "Aromatic English lavender nestles in a cocooning base of white musk and night-blooming moonflowers.", productUrl: "#", pairingType: 'base', tags: ['serene', 'floral', 'versatile', 'evening', 'coolWeather'] },
+            { name: "Red Roses Cologne", family: "Floral", notes: "Lemon, Red Roses Accord, Honeycomb", story: "A voluptuous blend of seven of the world's most exquisite roses. With crushed violet leaves and a hint of lemon.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'versatile', 'goldenHour', 'warmWeather'] },
+            { name: "Scarlet Poppy Cologne Intense", family: "Floral", notes: "Ambrette, Scarlet Poppy, Tonka Bean", story: "From the wild steppes of Asia, home of the great scarlet poppy. A voluptuous floral, inspired by its extravagant blooms.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'floral', 'intense', 'evening', 'coolWeather'] },
+            { name: "Velvet Rose & Oud Cologne Intense", family: "Floral", notes: "Clove, Damask Rose, Oud", story: "Darkest Damask rose. Rich and textural, wrapped with smoky oud wood. Spiked with clove, decadent with praline.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening', 'coolWeather'] },
+            { name: "Jasmine Sambac & Marigold Cologne Intense", family: "Floral", notes: "Marigold, Jasmine Sambac, Benzoin", story: "Serene fields of jasmine sambac. The most precious of jasmines, combined with the vibrant marigold, gathered at dawn.", productUrl: "#", pairingType: 'base', tags: ['romantic', 'floral', 'intense', 'goldenHour', 'warmWeather'] },
+            { name: "Tuberose Angelica Cologne Intense", family: "Floral", notes: "Angelica, Tuberose, Amberwood", story: "The queen of white florals. Sensual. Touched with the green spiciness of angelica and summed up by the warmth of amberwood.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'floral', 'intense', 'evening', 'coolWeather'] },
+            { name: "Wood Sage & Sea Salt Cologne", family: "Woody", notes: "Ambrette Seeds, Sea Salt, Sage", story: "Escape the everyday along the windswept shore. Waves breaking white, the air fresh with sea salt and spray.", productUrl: "#", pairingType: 'base', tags: ['serene', 'woody', 'versatile', 'goldenHour', 'coolWeather'] },
+            { name: "Cypress & Grapevine Cologne Intense", family: "Woody", notes: "Cypress, Grapevine, Moss", story: "The verdant hanging gardens of a lost ancient world. A fresh, aromatic scent of cypress trees, powered with the warmth of grapevine.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'woody', 'intense', 'evening', 'coolWeather'] },
+            { name: "Myrrh & Tonka Cologne Intense", family: "Woody", notes: "Lavender, Omumbiri Myrrh, Tonka Bean", story: "Rich, hand-harvested sap of the Namibian myrrh tree, mingling with the warm almond and lush vanilla notes of the tonka bean.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening', 'coolWeather'] },
+            { name: "Vetiver & Golden Vanilla Cologne Intense", family: "Woody", notes: "Cardamom, Vetiver Bourbon, Vanilla Bourbon", story: "A delectable spice opens a gourmand accord of vanilla bourbon, grounded by earthy vetiver.", productUrl: "#", pairingType: 'warmer', tags: ['serene', 'spicy', 'intense', 'evening', 'coolWeather'] },
+            { name: "Oud & Bergamot Cologne Intense", family: "Woody", notes: "Bergamot, Cedarwood, Oud", story: "Precious oud, reframed. The mysterious, smoky character of this revered wood, is central to Middle Eastern fragrance traditions.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'woody', 'intense', 'evening', 'coolWeather'] },
+            { name: "Dark Amber & Ginger Lily Cologne Intense", family: "Spicy", notes: "Black Cardamom, Black Orchid, Kyara Incense", story: "Enriched with amber and black orchid. Illuminated by the clean sensuality of black cardamom, ginger and water lily.", productUrl: "#", pairingType: 'warmer', tags: ['confident', 'spicy', 'intense', 'evening', 'coolWeather'] },
+            { name: "Hinoki & Cedarwood Cologne Intense", family: "Spicy", notes: "Hinoki, Cedarwood, Amber", story: "A scent that captures the tranquility of a Japanese forest temple, with notes of hinoki wood, cedar, and warm amber.", productUrl: "#", pairingType: 'warmer', tags: ['serene', 'woody', 'intense', 'evening', 'coolWeather'] },
+            { name: "Red Hibiscus Cologne Intense", family: "Spicy", notes: "Mandarin, Red Hibiscus, Vanilla", story: "A vivid solar floral. The red hibiscus is known for its enchanting petals and can be found in the heart of a tropical forest.", productUrl: "#", pairingType: 'base', tags: ['uplifting', 'floral', 'intense', 'goldenHour', 'warmWeather'] }
         ];
 
         const quizData = [
-            {
-                question: "What feeling do you want your new scent to inspire? ☀️",
-                key: "feeling",
-                answers: [
-                    { text: "Effortless & Uplifted", value: "uplifting", description: "Like a fresh start to the day." },
-                    { text: "Dreamy & Romantic", value: "romantic", description: "Like a walk through a blooming garden." },
-                    { text: "Confident & Captivating", value: "confident", description: "Something memorable and unique." },
-                    { text: "Grounded & Serene", value: "serene", description: "A feeling of calm and comfort." }
-                ]
-            },
-            {
-                question: "Picture your ideal weekend escape. Where are you? 🗺️",
-                key: "environment",
-                answers: [
-                    { text: "A sun-drenched Italian coast", value: "Citrus", description: "Sipping lemonade by the sea." },
-                    { text: "A charming cottage garden", value: "Floral", description: "Lush, and filled with flowers." },
-                    { text: "An exotic, bustling market", value: "Spicy", description: "Filled with rare and intriguing spices." },
-                    { text: "A quiet, historic library", value: "Woody", description: "With wood-paneled walls." }
-                ]
-            },
-            {
-                question: "How do you want your fragrance to present itself? ✨",
-                key: "intensity",
-                answers: [
-                    { text: "A subtle secret", value: "light", description: "Just for me and those who get close." },
-                    { text: "An elegant whisper", value: "versatile", description: "That follows me through the day." },
-                    { text: "A rich, memorable statement", value: "intense", description: "For a special occasion." }
-                ]
-            },
-            {
-                question: "To finish, what time of day feels most like you? 🌓",
-                key: "timeOfDay",
-                answers: [
-                    { text: "Bright Morning", value: "morning", description: "The energy and fresh possibilities of dawn." },
-                    { text: "Golden Hour", value: "goldenHour", description: "The warm, beautiful glow before sunset." },
-                    { text: "Enchanting Evening", value: "evening", description: "The mystery and sophistication of the night." }
-                ]
-            }
+            { question: "What feeling do you want your new scent to inspire? ☀️", key: "feeling", answers: [ { text: "Effortless & Uplifted", value: "uplifting", description: "Like a fresh start to the day." }, { text: "Dreamy & Romantic", value: "romantic", description: "Like a walk through a blooming garden." }, { text: "Confident & Captivating", value: "confident", description: "Something memorable and unique." }, { text: "Grounded & Serene", value: "serene", description: "A feeling of calm and comfort." } ] },
+            { question: "Picture your ideal weekend escape. Where are you? 🗺️", key: "environment", answers: [ { text: "A sun-drenched Italian coast", value: "Citrus", description: "Sipping lemonade by the sea." }, { text: "A charming cottage garden", value: "Floral", description: "Lush, and filled with flowers." }, { text: "An exotic, bustling market", value: "Spicy", description: "Filled with rare and intriguing spices." }, { text: "A quiet, historic library", value: "Woody", description: "With wood-paneled walls." } ] },
+            { question: "How do you want your fragrance to present itself? ✨", key: "intensity", answers: [ { text: "A subtle secret", value: "light", description: "Just for me and those who get close." }, { text: "An elegant whisper", value: "versatile", description: "That follows me through the day." }, { text: "A rich, memorable statement", value: "intense", description: "For a special occasion." } ] },
+            { question: "To finish, what time of day feels most like you? 🌓", key: "timeOfDay", answers: [ { text: "Bright Morning", value: "morning", description: "The energy and fresh possibilities of dawn." }, { text: "Golden Hour", value: "goldenHour", description: "The warm, beautiful glow before sunset." }, { text: "Enchanting Evening", value: "evening", description: "The mystery and sophistication of the night." } ] }
         ];
 
         // --- STATE MANAGEMENT ---
         let currentQuestionIndex = 0;
         const userAnswers = {};
+        let climateData = { tag: null, location: null };
 
         // --- DOM ELEMENTS & SCREENS ---
         const screens = { welcome: document.getElementById('welcome-screen'), quiz: document.getElementById('quiz-screen'), loading: document.getElementById('loading-screen'), results: document.getElementById('results-screen') };
         const quizContent = document.getElementById('quiz-content');
         const resultsContainer = document.getElementById('results-container');
         const progressBarInner = document.getElementById('progress-bar-inner');
+        const climateStatus = document.getElementById('climate-status');
+        const resultsIntro = document.getElementById('results-intro');
 
         // --- NAVIGATION & RENDERING ---
         function showScreen(screenName) {
@@ -174,6 +144,7 @@
         }
 
         function restartQuiz() {
+            getClimateData(); // Re-fetch climate data on restart
             showScreen('welcome');
         }
 
@@ -212,6 +183,12 @@
         
         function renderResults(recommendations) {
             const { base, pair1, pair2 } = recommendations;
+            
+            if (climateData.tag && climateData.location) {
+                resultsIntro.innerHTML = `Based on your preferences, and considering the currently <strong>${climateData.tag}</strong> weather in your region of <strong>${climateData.location}</strong>, we've selected this bespoke combination.`;
+            } else {
+                 resultsIntro.innerHTML = `Based on your preferences, we've selected a bespoke combination, just for you.`;
+            }
 
             const renderFragrance = (fragrance, role, combinationText = '') => {
                 let roleHtml = (role === 'base') ? `<p class="text-sm tracking-widest font-light uppercase">Your Base Scent</p>` : `<p class="text-sm tracking-widest font-light uppercase">${combinationText}</p>`;
@@ -249,16 +226,45 @@
             `;
         }
 
-        // --- API LOGIC (SIMULATED) ---
+        // --- CLIMATE & API LOGIC ---
+        async function getClimateData() {
+            try {
+                climateStatus.textContent = 'Detecting local climate...';
+                const geoResponse = await fetch('https://ipapi.co/json/');
+                if (!geoResponse.ok) throw new Error('Geolocation fetch failed');
+                const geoData = await geoResponse.json();
+                const { latitude, longitude, region } = geoData; // Using region instead of city
+
+                const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+                if (!weatherResponse.ok) throw new Error('Weather fetch failed');
+                const weatherData = await weatherResponse.json();
+                const temp = weatherData.current_weather.temperature;
+
+                climateData.location = region || 'your region'; // Use region, with a fallback
+                if (temp >= 20) {
+                    climateData.tag = 'warm';
+                } else if (temp <= 10) {
+                    climateData.tag = 'cool';
+                } else {
+                    climateData.tag = 'mild';
+                }
+                climateStatus.textContent = `Climate detected for ${climateData.location}.`;
+            } catch (error) {
+                console.error("Climate detection failed:", error);
+                climateStatus.textContent = 'Could not detect local climate.';
+                climateData = { tag: null, location: null };
+            }
+        }
+
         async function getResults() {
             showScreen('loading');
             await new Promise(resolve => setTimeout(resolve, 2500));
-            const recommendations = getMockRecommendations(userAnswers);
+            const recommendations = getMockRecommendations(userAnswers, climateData.tag);
             renderResults(recommendations);
             showScreen('results');
         }
 
-        function getMockRecommendations(answers) {
+        function getMockRecommendations(answers, weatherTag) {
             const { feeling, environment, intensity, timeOfDay } = answers;
 
             const scoredFragrances = joMaloneFragrances.map(fragrance => {
@@ -268,12 +274,11 @@
                 if (fragrance.tags.includes(timeOfDay)) score += 3;
                 if (fragrance.tags.includes(intensity)) score += 4;
                 
-                // Special case for 'versatile' intensity
-                if (intensity === 'versatile' && !fragrance.tags.includes('intense') && !fragrance.tags.includes('light')) {
-                    score += 4;
-                } else if (intensity === 'versatile') {
-                    score += 2; // Give partial points if it's light or intense
-                }
+                if (weatherTag === 'warm' && fragrance.tags.includes('warmWeather')) score += 2;
+                if (weatherTag === 'cool' && fragrance.tags.includes('coolWeather')) score += 2;
+                
+                if (intensity === 'versatile' && !fragrance.tags.includes('intense') && !fragrance.tags.includes('light')) { score += 4; } 
+                else if (intensity === 'versatile') { score += 2; }
 
                 return { ...fragrance, score };
             });
@@ -290,8 +295,12 @@
             return { base: baseScent, pair1: fresherPair, pair2: warmerPair };
         }
 
-        // Initial state
-        showScreen('welcome');
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            showScreen('welcome');
+            getClimateData();
+        };
     </script>
 </body>
 </html>
+
